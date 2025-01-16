@@ -1,0 +1,3 @@
+BType Real
+Real <- lambda n: isinstance(n, float)
+0.5 ? Real

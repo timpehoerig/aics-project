@@ -1,0 +1,2 @@
+Type T
+a : T
