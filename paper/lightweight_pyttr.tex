@@ -1,0 +1,214 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[final]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{Lightweight PyTTR}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+\author{Timpe Hörig \\
+  University of Gothenburg \\
+  \texttt{gustimpho@student.gu.se}
+}
+
+%\author{
+%  \textbf{First Author\textsuperscript{1}},
+%  \textbf{Second Author\textsuperscript{1,2}},
+%  \textbf{Third T. Author\textsuperscript{1}},
+%  \textbf{Fourth Author\textsuperscript{1}},
+%\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+%  \textsuperscript{1}Affiliation 1,
+%  \textsuperscript{2}Affiliation 2,
+%  \textsuperscript{3}Affiliation 3,
+%  \textsuperscript{4}Affiliation 4,
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+%}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+The current implementation of PyTTR has two major draw backs: First, it is based on Python3.4 and thus, cannot utilize the modern python features. Second, objects and types in PyTTR differ from objects and types in python. However, as PyTTR is a designed as a library, writing simple programs in PyTTR require verbose syntax in python's OOP style. In this paper different approaches on solving these drawbacks are discussed and a solution in form of a PyTTR-Programming languages is presented.
+\end{abstract}
+
+\section{Introduction}
+In PyTTR defining a simple type \texttt{T} and assigning that type to an Object \texttt{'a'} looks like the following:\\
+
+\begin{verbatim}
+  T = Type()
+  T.judge('a')
+  
+  print(T.query('a'))
+\end{verbatim}
+
+This is already verbose but unfortunately required as the interpretation of a PyTTR program differs from python's own interpretation. Unfortunately, as PyTTR programs become more complex so does their syntax. A simple program that defines a basic type \texttt{Real}, adding a witness condition to that type and checking if an object \texttt{0.5} belongs to that type \texttt{Real} looks like the following:
+
+\begin{verbatim}
+  Real = BType('Real')
+  Real.learn_witness_condition(
+    lambda n: isinstance(n,float)
+    )
+
+  print(Real.query(0.5))
+\end{verbatim}
+
+This paper provides an interpreter for a PyTTR language that uses lightweight syntax and interprets these PyTTR programs using the original but updated PyTTR library. With that the program from above can be rewritten to the following:
+
+\begin{verbatim}
+  BType Real
+  Real <- lambda n: isinstance(n,float)
+
+  0.5 ? Real
+\end{verbatim}
+
+The following sections cover the update of the original PyTTR library and the construction of the lightweight PyTTR language.
+
+\section{PyTTR Library}
+
+One of the biggest feature added to python is it's type system. While not being necessary to run a python program, the usage of python's type system drastically improves the quality and extensionality of code.
+Furthermore, it is to expect that updating the libraries source code does not only enhance it's quality but also allows for a less verbose interface. However, updating all of PyTTR's source code needs a full understanding of PyTTR in order to update but not chance the semantics of it. A start of that can be found in \texttt{origin/}. As updating the complete library exceeds the scope of this paper while not providing a simple enough syntax, this paper focuses on a lightweight language for PyTTR that provides a simple syntax to the user but interprets the program using the verbose interface provided by the PyTTR library.
+
+\section{Lightweight PyTTR}
+
+This Lightweight PyTTR interpreter only handles a subset of PyTTR. Extending it is relatively easy as all the structure needed for it is already there. However, as it is a time consuming work and would exceed the scope of this paper, this paper demonstrates the usefulness of a Lightweight PyTTR with Types and BTypes. Leading to the context free grammar for Lightweight PyTTR show in Figure~\ref{bnf}. Where \texttt{id} can be any alphanumeric combination starting with a letter and \texttt{any} any possible python object.
+
+\begin{figure}
+\begin{verbatim}
+<prog>  -> <newl*> <stmt*> <newl*>
+<newl*> -> newline <newl*> |
+<stmt*> -> <stmt> newline
+  <newl*> <stmt*> |
+<stmt>  -> <any :> <id> |
+  <any ?> <id> | Type <id> |
+  BType <id> | <id> <- <func>
+<id>    -> ...
+<any :> -> ...
+<any ?> -> ...
+\end{verbatim}
+\caption{BNF of Lightweight PyTTR}
+\label{bnf}
+\end{figure}
+
+\subsection{Lexer}
+
+The lexer itself can be found in \texttt{util/lexer} and is a simple \texttt{longest match} lexer for the provided regexes in \texttt{lexer}. For each regex a corresponding \texttt{Dataclass} acting as tokens is given. Tokens may or may not contain data. As example, the Token for identifiers \texttt{TId} contains the value of the identifier as the value of the \texttt{Dataclass} \texttt{TId}.
+
+\subsection{Parser}
+
+The parser can be found in \texttt{util/parser} and is an implementation of \texttt{The Early Parser}.
+Provide with a \texttt{TokenMatcher} for each Token and a context free grammar, it can parse any given list of Tokens. All left to do for the Lightweight PyTTR language is to provide exactly that, a \texttt{Tokenmatcher} for every Token defined in \texttt{lexer} and the context free grammar from Figure~\ref{bnf}.
+The parser then parses the token list and creates an abstract syntax tree(AST) out of it. The nodes for this AST are given in \texttt{py13\_pyttr\_AST}. Each node is represented by a \texttt{Dataclass}, containing all the information that is needed. Every node of this AST is also equipped with a \texttt{\_\_str\_\_} method, that allows pretty printing for Lightweight PyTTR programs.
+
+\subsection{Immutable Lists}
+
+In \texttt{util/immutable\_list} a simple immutable list structure is given. This is necessary to hash lists, as hashing mutable lists is not safe.
+
+\subsection{Interpreter}
+
+The heart of this interpreter lays in \texttt{interprete}. Given any Lightweight PyTTR AST, this interpreter iterates of all statements (every line in the Lightweight PyTTR program corresponds to one statement) and matches on each of them. Depending on the match the statement is handled. As for example, the \texttt{SJudgment(id, t)} statement is handles as follows: First, the corresponding type to the string \texttt{t} is extracted from the environment. Then, the object to judge \texttt{id} is parsed. Finally, the method \texttt{judge} provided by the interface of the PyTTR library is called on the corresponding type of \texttt{t} with the object corresponding to \texttt{id}. Util now, the output of this interpretation is simply printed to the terminal, but may be returned for further use.
+
+\subsection{Scope of the Lightweight PyTTR Subset}
+
+In \texttt{py13\_pyttr} a small subset of PyTTR can be found. This is replaceable by the complete PyTTR library as it provides the same interface for all implemented features. However, this is not done as the current subset is an up-to-date python3.13 subset that is fully typed and thus, provides a much better interface.
+
+\subsection{Running It}
+
+This interpreter can be ran using the command line by typing the following command:
+
+
+\begin{verbatim}
+python3.13 run.py path
+\end{verbatim}
+
+Where \texttt{path} is the path of the Lightweight PyTTR program.
+
+\section{Future Work}
+
+While most of the hard work for the interpreter is done, it remains to extend Lightweight PyTTR to cover all features provided by the PyTTR library as well as updating the library itself.
+
+\section{Conclusion}
+
+Interacting and writing PyTTR programs with Lightweight PyTTR is much more readable and faster than doing so through the interface of the PyTTR library directly. However, in order to use Lightweight PyTTR properly, it needs to be extended to cover the full interface of PyTTR. As this is separated from updating the PyTTR library to the latest python version, it still would be useful to do so, as interacting with a typed interface is much easier and more robust. Furthermore, updating the PyTTR library may also introduce a simpler and cleaner interface, as it can take full advantage of python's new features.
+
+\subsection{References}
+
+Robin Cooper \href{https://github.com/robincooper/pyttr}{Python implementation of TTR}
+
+\end{document}
