@@ -1,6 +1,6 @@
 # An Interpreter for Lightweight PyTTR - A programming language for TTR 
 
-[Paper](https://github.com/timpehoerig/aics-project/paper/lightweight_pyttr.pdf) | [Implementation](https://github.com/timpehoerig/aics-project/implementation/)
+[Paper](https://github.com/timpehoerig/aics-project/blob/main/paper/lightweight_pyttr.pdf) | [Implementation](https://github.com/timpehoerig/aics-project/tree/main/implementation)
 
 #
 
